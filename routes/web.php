@@ -17,3 +17,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('home', 'CurlController@index');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show');
+
+Route::get('tshirt', 'TshirtController@index');

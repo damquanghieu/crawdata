@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\Society;
 use Illuminate\Http\Request;
 use KubAT\PhpSimple\HtmlDomParser;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CurlController extends Controller
 {
@@ -15,8 +17,8 @@ class CurlController extends Controller
     public function index()
     {
         $products = [];
-        for ($i = 1; $i <= 5; $i++) {
-            $ch = curl_init("https://society6.com/comforters?page=1");
+        for ($i = 1; $i <= 100; $i++) {
+            $ch = curl_init("https://society6.com/comforters?page=" . $i);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $content = curl_exec($ch);
             curl_close($ch);
@@ -30,51 +32,38 @@ class CurlController extends Controller
                 curl_close($ch);
 
                 $sku = substr($value->href, strpos($value->href, '=') + 1);
-                $html = HtmlDomParser::str_get_html($content_2);
-                $title = $html->find("h1.title_header_3f6JK", 0)->plaintext;
-                $description = $html->find("div.detailsProductDescriptionDesktop_productDescription_3qzvS p", 0)->plaintext;
+                $html1 = HtmlDomParser::str_get_html($content_2);
+                $title = $html1->find("h1.title_header_3f6JK", 0)->plaintext;
+                $description = $html1->find("div.detailsProductDescriptionDesktop_productDescription_3qzvS p", 0)->plaintext;
                 $dotDescription = [];
-                foreach ($html->find(".detailsProductDescriptionDesktop_productDescription_3qzvS ul li") as $key => $dot) {
+                foreach ($html1->find(".detailsProductDescriptionDesktop_productDescription_3qzvS ul li") as $key => $dot) {
                     array_push($dotDescription, $dot->plaintext);
                 }
                 $keyEnd = substr($value->href, -4);
                 $newUrlSize = str_replace($keyEnd, "", $value->href);
                 $arrSize = [];
                 $linkImage = [];
-                $idProduct = $html->find(".ddOption_dropdown_28TpC");
+                $idProduct = $html1->find(".ddOption_dropdown_28TpC");
                 foreach ($idProduct as $key => $div) {
                     $ch = curl_init("https://society6.com" . $newUrlSize . $div->value);
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                     $content_3 = curl_exec($ch);
                     curl_close($ch);
-                    $html = HtmlDomParser::str_get_html($content_3);
-                    array_push($linkImage, $html->find('img.image_preview_p8mXz', 0)->src);
-                    array_push($arrSize, $html->find('div.select_dropdown_xyLsr', 0)->title);
-
+                    $html2 = HtmlDomParser::str_get_html($content_3);
+                    if ($html2 == false) {
+                        continue;
+                    }
+                    array_push($linkImage, $html2->find('img.image_preview_p8mXz', 0)->src);
+                    array_push($arrSize, $html2->find('div.select_dropdown_xyLsr', 0)->title);
                 }
                 $products[] = [$sku, $title, $arrSize, $linkImage, $description, $dotDescription];
-
+                  return Excel::download(new Society($products), 'society.xlsx');
             }
-            /*   array_push($totalProduct, $products); */
         }
+        return Excel::download(new Society($products), 'society.xlsx');
         echo '<pre>';
         print_r($products);
         echo '<pre>';
-
-        /*  $html = HtmlDomParser::file_get_html('https://society6.com/comforters?page=1');
-        $data = $html->find('div.imageWrap_product_3TDXW a');
-
-        $html = HtmlDomParser::str_get_html($html);
-
-        dd($data); */
-        /* $arr = [];
-    foreach ($data as $key => $value) {
-    if ($key >= 2) {
-    $arr[$value->childNodes(1)->innertext] = explode(',', trim(str_replace(array("(", ")", ' '), '', $value->childNodes(2)->innertext)));
-    }
-    }
-    return $arr; */
-
     }
 
     /**
@@ -106,7 +95,42 @@ class CurlController extends Controller
      */
     public function show($id)
     {
-        //
+        switch ($id) {
+            case 'case_1':
+                $this->getData(1, 5, "page_1.xlsx");
+                break;
+            case 'case_2':
+                $this->getData(11, 20, "page_2.xlsx");
+                break;
+            case 'case_3':
+                $this->getData(21, 30, "page_3.xlsx");
+                break;
+            case 'case_4':
+                $this->getData(31, 40, "page_4.xlsx");
+                break;
+            case 'case_5':
+                $this->getData(41, 50, "page_5.xlsx");
+                break;
+            case 'case_6':
+                $this->getData(51, 60, "page_6.xlsx");
+                break;
+            case 'case_7':
+                $this->getData(61, 70, "page_7.xlsx");
+                break;
+            case 'case_8':
+                $this->getData(71, 80, "page_8.xlsx");
+                break;
+            case 'case_9':
+                $this->getData(81, 90, "page_9.xlsx");
+                break;
+            case 'case_10':
+                $this->getData(91, 100, "page_10.xlsx");
+                break;
+
+            default:
+                # code...
+                break;
+        }
     }
 
     /**
@@ -141,5 +165,54 @@ class CurlController extends Controller
     public function destroy($id)
     {
         //
+    }
+    public function getData($start, $to, $nameFile)
+    {
+        $products = [];
+        for ($i = 1; $start <= $to; $i++) {
+            $ch = curl_init("https://society6.com/comforters?page=" . $i);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $content = curl_exec($ch);
+            curl_close($ch);
+
+            $html = HtmlDomParser::str_get_html($content);
+            $data = $html->find('div.imageWrap_product_3TDXW a');
+            foreach ($data as $key => $value) {
+                $ch = curl_init("https://society6.com" . $value->href);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $content_2 = curl_exec($ch);
+                curl_close($ch);
+
+                $sku = substr($value->href, strpos($value->href, '=') + 1);
+                $html1 = HtmlDomParser::str_get_html($content_2);
+                $title = $html1->find("h1.title_header_3f6JK", 0)->plaintext;
+                $description = $html1->find("div.detailsProductDescriptionDesktop_productDescription_3qzvS p", 0)->plaintext;
+                $dotDescription = [];
+                foreach ($html1->find(".detailsProductDescriptionDesktop_productDescription_3qzvS ul li") as $key => $dot) {
+                    array_push($dotDescription, $dot->plaintext);
+                }
+                $keyEnd = substr($value->href, -4);
+                $newUrlSize = str_replace($keyEnd, "", $value->href);
+                $arrSize = [];
+                $linkImage = [];
+                $idProduct = $html1->find(".ddOption_dropdown_28TpC");
+                foreach ($idProduct as $key => $div) {
+                    $ch = curl_init("https://society6.com" . $newUrlSize . $div->value);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                    $content_3 = curl_exec($ch);
+                    curl_close($ch);
+                    $html2 = HtmlDomParser::str_get_html($content_3);
+                    if ($html2 == "false") {
+                        continue;
+                    }
+                    array_push($linkImage, $html2->find('img.image_preview_p8mXz', 0)->src);
+                    array_push($arrSize, $html2->find('div.select_dropdown_xyLsr', 0)->title);
+                }
+                $products[] = [$sku, $title, $arrSize, $linkImage, $description, $dotDescription];
+                return Excel::download(new Society($products), $nameFile);
+
+            }
+        }
+        return Excel::download(new Society($products), $nameFile);
     }
 }
