@@ -97,34 +97,34 @@ class CurlController extends Controller
     {
         switch ($id) {
             case 'case_1':
-                $this->getData(1, 5, "page_1.xlsx");
+                return $this->getData(1, 5, "page_1.xlsx");
                 break;
             case 'case_2':
-                $this->getData(11, 20, "page_2.xlsx");
+                return $this->getData(6, 10, "page_2.xlsx");
                 break;
             case 'case_3':
-                $this->getData(21, 30, "page_3.xlsx");
+                return  $this->getData(11, 15, "page_3.xlsx");
                 break;
             case 'case_4':
-                $this->getData(31, 40, "page_4.xlsx");
+                return $this->getData(16, 20, "page_4.xlsx");
                 break;
             case 'case_5':
-                $this->getData(41, 50, "page_5.xlsx");
+                return $this->getData(21, 25, "page_5.xlsx");
                 break;
             case 'case_6':
-                $this->getData(51, 60, "page_6.xlsx");
+                return $this->getData(26, 30, "page_6.xlsx");
                 break;
             case 'case_7':
-                $this->getData(61, 70, "page_7.xlsx");
+                return $this->getData(31, 35, "page_7.xlsx");
                 break;
             case 'case_8':
-                $this->getData(71, 80, "page_8.xlsx");
+                return $this->getData(36, 40, "page_8.xlsx");
                 break;
             case 'case_9':
-                $this->getData(81, 90, "page_9.xlsx");
+                return $this->getData(41, 45, "page_9.xlsx");
                 break;
             case 'case_10':
-                $this->getData(91, 100, "page_10.xlsx");
+                return $this->getData(46, 50, "page_10.xlsx");
                 break;
 
             default:
@@ -209,8 +209,6 @@ class CurlController extends Controller
                     array_push($arrSize, $html2->find('div.select_dropdown_xyLsr', 0)->title);
                 }
                 $products[] = [$sku, $title, $arrSize, $linkImage, $description, $dotDescription];
-                return Excel::download(new Society($products), $nameFile);
-
             }
         }
         return Excel::download(new Society($products), $nameFile);

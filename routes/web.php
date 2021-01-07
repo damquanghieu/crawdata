@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('comforter', 'ComforterController@index');
 Route::get('home', 'CurlController@index');
 Route::get('home/{id}', 'CurlController@show');
 Route::get('home/{id}', 'CurlController@show');

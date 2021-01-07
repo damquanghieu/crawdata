@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Exports\Society;
-use KubAT\PhpSimple\HtmlDomParser;
+use App\Exports\SocityTshirt;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TshirtController extends Controller
@@ -11,59 +10,50 @@ class TshirtController extends Controller
     public function index()
     {
         $products = [];
-        for ($i = 1; $i <= 20; $i++) {
-            $ch = curl_init("https://society6.com/tshirts?page=" . $i);
+        for ($i = 2; $i < 100; $i++) {
+            $ch = curl_init("https://society6.com/gateway/v1/search?alias=tshirts&page=1");
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $content = curl_exec($ch);
             curl_close($ch);
+            $data = json_decode($content);
+            foreach ($data->data->attributes->cards as $key => $item) {
+               
 
-            $html = HtmlDomParser::str_get_html($content);
-            $data = $html->find('div.imageWrap_product_3TDXW a');
-            foreach ($data as $key => $value) {
-                $ch = curl_init("https://society6.com" . $value->href);
+                $urlItem = "https://society6.com" . $item->card->link->href;
+                $urlApi = "https://society6.com/gateway/v1" . str_replace('product', 'products', $item->card->link->href);
+                $productType = $item->product->product_type->display_name;
+                $ch = curl_init($urlApi);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                $content_2 = curl_exec($ch);
+                $content = curl_exec($ch);
                 curl_close($ch);
-
-                $sku = substr($value->href, strpos($value->href, '=') + 1);
-                $html = HtmlDomParser::str_get_html($content_2);
-                $title = $html->find("h1.title_header_3f6JK", 0)->plaintext;
-                $description = $html->find("div.detailsProductDescriptionDesktop_productDescription_3qzvS p", 0)->plaintext;
-                $dotDescription = [];
-                foreach ($html->find(".detailsProductDescriptionDesktop_productDescription_3qzvS ul li") as $key => $dot) {
-                    array_push($dotDescription, $dot->plaintext);
+                $data1 = json_decode($content);
+                if ($key ==6) {
+                    dd($data1);
                 }
-                $keyEnd = substr($value->href, -3);
-                $newUrlSize = str_replace($keyEnd, "", $value->href);
-                $arrSizeMale = ['Small', 'Medium', 'Large', 'X-Large', '2x-Large'];
+               
+                if (isset($data1->errors)) {
+                    continue;
+                }
+                if (!isset($data1->data)) {
+                    continue;
+                }
+                $description = $data1->data->attributes->description_map->b;
+                $title = $item->card->image->alt;
+                $price = $item->product->price;
+                $linkImage = $data1->data->attributes->media_map;
+
                 $arrSizeFemale = ['Small', 'Medium', 'Large', 'X-Large'];
-                $linkImageMale = [];
-                $linkImageFemale = [];
-                $arrColor = [];
-
-                $getColor = $html->find('div .outerCircle_colorpicker_1fqqT');
-                foreach ($getColor as $keyColor => $color) {
-                    array_push($arrColor, $color->title);
-                }
-                $typeProduct = ['v49', 'v50'];
-                foreach ($typeProduct as $key => $div) {
-                    $ch = curl_init("https://society6.com" . $newUrlSize . $div);
-                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    $content_3 = curl_exec($ch);
-                    curl_close($ch);
-                    $html = HtmlDomParser::str_get_html($content_3);
-
-                    array_push($linkImage, $html->find('img.image_preview_p8mXz', 0)->src);
-                    array_push($arrSize, $html->find('div.select_dropdown_xyLsr', 0)->title);
-
-                }
-                $products[] = [$sku, $title, $arrSize, $linkImage, $description, $dotDescription];
-
+                $arrSizeMale = ['Small', 'Medium', 'Large', 'X-Large', '2x-Large'];
+                $type_tshirt = ['Mens Fitted Tee', ' Womens Fitted Tee'];
+                $arrLinkImage = [
+                    'size_1' => $linkImage->d->src->xxl,
+                    'size_2' => $linkImage->e->src->xxl,
+                ];
+                $description = explode("\n", $description);
+                $products[] = [$item->id, $urlItem, $productType, $type_tshirt, $title, $price,  $arrSizeFemale, $arrSizeMale,$arrLinkImage, $description];
             }
+            return Excel::download(new SocityTshirt($products), "society_tshirt.xlsx");
         }
-        return Excel::download(new Society($products), 'society.xlsx');
-        echo '<pre>';
-        print_r($products);
-        echo '<pre>';
+        return Excel::download(new SocityTshirt($products), "society_tshirt.xlsx");
     }
 }
