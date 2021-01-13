@@ -17,6 +17,12 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('comforter', 'ComforterController@index');
+Route::get('comforter/{id}', 'ComforterController@show');
+Route::get('comforter/{id}', 'ComforterController@show');
+Route::get('comforter/{id}', 'ComforterController@show');
+Route::get('comforter/{id}', 'ComforterController@show');
+Route::get('comforter/{id}', 'ComforterController@show');
+
 Route::get('home', 'CurlController@index');
 Route::get('home/{id}', 'CurlController@show');
 Route::get('home/{id}', 'CurlController@show');

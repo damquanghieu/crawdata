@@ -12,49 +12,40 @@
   <table class="table dtTable table-bordered" width="100%" cellspacing="0">
     <thead>
       <tr align="center">
-        <th style="border: 1px solid black;" align="center">STT</th>
-
         <th style="border: 1px solid black;" align="center">Sku</th>
-        <th style="border: 1px solid black;" align="center">Url</th>
-        <th style="border: 1px solid black;" align="center">Type</th>
-        <th style="border: 1px solid black;" align="center">Title</th>
-        <th style="border: 1px solid black;" align="center">Description</th>
+        <th style="border: 1px solid black;" align="center">Name</th>
         <th style="border: 1px solid black;" align="center">Size</th>
-        <th style="border: 1px solid black;" align="center">Link_image</th>
-        <th style="border: 1px solid black;" align="center">Dot_description</th>
+        <th style="border: 1px solid black;" align="center">Price</th>
+        <th style="border: 1px solid black;" align="center">Image1</th>
+        <th style="border: 1px solid black;" align="center">Image2</th>
+        <th style="border: 1px solid black;" align="center">Description</th>
+        <th style="border: 1px solid black;" align="center">Bullet_point1</th>
+        <th style="border: 1px solid black;" align="center">Bullet_point2</th>
+        <th style="border: 1px solid black;" align="center">Bullet_point3</th>
+        <th style="border: 1px solid black;" align="center">Bullet_point4</th>
       </tr>
     </thead>
     <tbody>
       @foreach($products as $key => $product)
-      <tr style="vertical-align: middle;">
-        <td style="border: 1px solid black;width: 5px; vertical-align : middle;">{{$key+1}}</td>
-
-        <td style="border: 1px solid black; vertical-align: middle;" align="center">
-          {{htmlspecialchars_decode($product[0])}}</td>
-        <td style="border: 1px solid black; vertical-align: middle;">{{$product[1]}}</td>
-        <td style="border: 1px solid black; vertical-align: middle;" align="center">{{$product[2]}}</td>
-        <td style="border: 1px solid black;">{{htmlspecialchars_decode($product[3])}}</td>
-        <td style="border: 1px solid black;">
-          @foreach ($product[4] as $des)
-          <p>{{$des}}</p>
-          @endforeach
-        </td>
-        <td style="border: 1px solid black;">
-          @foreach ($product[5] as $size)
-          <p>-{{$size}}</p>
-          @endforeach
-        </td>
-        <td style="border: 1px solid black;">
-          @foreach ($product[6] as $linkimage)
-          <p>{{$linkimage}}</p>
-          <p></p>
-          @endforeach
-        </td>
-      </tr>
+        @foreach ($product as $item)
+          <tr>
+            <td>{{$item['sku']}}</td>
+            <td style="width:50px;">{{htmlspecialchars_decode($item['name'])}}</td>
+            <td align="center">{{$item['size']}}</td>
+            <td align="center">{{$item['price']}}</td>
+            <td style="width:50px;">{{$item['image_1']}}</td>
+            <td style="width:50px;">{{$item['image_2']}}</td>
+            <td style="width:50px;">{{$item['description']}}</td>
+            <td style="width:50px;">{{$item['bullet_point1']}}</td>
+            <td style="width:50px;">{{$item['bullet_point2']}}</td>
+            <td style="width:50px;">{{$item['bullet_point3']}}</td>
+            <td style="width:50px;">{{$item['bullet_point4']}}</td>
+          </tr>
+        @endforeach
+        <tr></tr>
       @endforeach
     </tbody>
   </table>
-  {{--  {{dd("ok")}} --}}
 </body>
 
 </html>

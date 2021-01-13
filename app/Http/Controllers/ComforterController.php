@@ -17,7 +17,7 @@ class ComforterController extends Controller
     public function index()
     {
         $products = [];
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 1; $i <= 1; $i++) {
             if ($i == 61) {
                 continue;
             }
@@ -26,6 +26,7 @@ class ComforterController extends Controller
             $content = curl_exec($ch);
             curl_close($ch);
             $data = json_decode($content);
+            /*  dd($data->data->attributes->cards); */
             foreach ($data->data->attributes->cards as $key => $item) {
 
                 $urlItem = "https://society6.com" . $item->card->link->href;
@@ -35,38 +36,65 @@ class ComforterController extends Controller
                 $ch = curl_init($urlApi);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                 $content = curl_exec($ch);
-                
+
                 curl_close($ch);
                 $data1 = json_decode($content);
-               
+                /*  if ($key == 41) {
+                dd($data1);
+                } */
                 if (isset($data1->errors)) {
                     continue;
                 }
                 if (!isset($data1->data)) {
                     continue;
                 }
-
-                $description = $data1->data->attributes->description_map->a;
-                $title = $item->card->image->alt;
-                $sizes = $data1->data->attributes->attributes->a200->values;
-                $linkImage = $data1->data->attributes->media_map;
-                $arrSizePrice = [];
-                $arrLinkImage = [
-                    'size_1' => $linkImage->e->src->xxl,
-                    'size_2' => $linkImage->f->src->xxl,
-                ];
-                foreach ($sizes as $keySize => $valueSize) {
-                    array_push($arrSizePrice, $valueSize->label . "|" . $valueSize->price);
+                $object = [];
+                $attribute_items = $data1->data->attributes->attributes;
+                $image_map = $data1->data->attributes->media_map;
+                $description_map = $data1->data->attributes->description_map->a;
+                $description_map = explode("\n", $description_map);
+                $description_map = array_filter(array_map('trim', $description_map));
+                $name_item = $data1->data->attributes->creative->title . " Comforter";
+                foreach ($data1->data->attributes->skus as $keySku => $sku) {
+                    $idSize = $sku->attributes->a200;
+                    $object[] = [
+                        'sku' => $keySku,
+                        'name' => $name_item,
+                        'size' => $attribute_items->a200->values->$idSize->label,
+                        'price' => $sku->retail_price,
+                        'image_1' => $image_map->e->src->xxl,
+                        'image_2' => $image_map->d->src->xxl,
+                        'description' => $description_map[0],
+                        'bullet_point1' => $description_map[2],
+                        'bullet_point2' => $description_map[3],
+                        'bullet_point3' => $description_map[4],
+                        'bullet_point4' => $description_map[5],
+                    ];
                 }
+                array_push($products, $object);
 
-                $description = explode("\n", $description);
-                $products[] = [$item->id, $urlItem, $productType, $title, $description, $arrSizePrice, $arrLinkImage];
+                /*  $description = $data1->data->attributes->description_map->a;
+            $title = $item->card->image->alt;
+            $sizes = $data1->data->attributes->attributes->a200->values;
+            $linkImage = $data1->data->attributes->media_map;
+            $arrSizePrice = [];
+            $arrLinkImage = [
+            'size_1' => $linkImage->e->src->xxl,
+            'size_2' => $linkImage->f->src->xxl,
+            ];
+            foreach ($sizes as $keySize => $valueSize) {
+            array_push($arrSizePrice, $valueSize->label . "|" . $valueSize->price);
+            }
+
+            $description = explode("\n", $description);
+            $products[] = [$item->id, $urlItem, $productType, $title, $description, $arrSizePrice, $arrLinkImage];*/
             }
 
         }
-        return Excel::download(new Society($products), "society_comforter.xlsx");
 
+        return Excel::download(new Society($products), "society_comforter.xlsx");
         dd($products);
+
         die;
         $products = [];
         for ($i = 1; $start <= $to; $i++) {
@@ -143,7 +171,114 @@ class ComforterController extends Controller
      */
     public function show($id)
     {
-        //
+        switch ($id) {
+            case 'case_1':
+                return $this->crawData(1,20);
+                break;
+
+            case 'case_2':
+                return $this->crawData(21,40);
+                break;
+            case 'case_3':
+                return $this->crawData(41,60);
+                break;
+            case 'case_4':
+                return $this->crawData(61,80);
+                break;
+            case 'case_5':
+                return $this->crawData(81,100);
+                break;
+                case 'case_6':
+                    return $this->crawData(73,73);
+                    break;
+                    case 'case_7':
+                        return $this->crawData(74,75);
+                        break;
+            default:
+                # code...
+                break;
+        }
+    }
+
+    public function crawData($start, $to)
+    {
+        $products = [];
+        for ($i = $start; $i <= $to; $i++) {
+            if ($i == 61 || $i == 73) {
+                continue;
+            }
+            $ch = curl_init("https://society6.com/gateway/v1/search?alias=comforters&page=" . $i);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            $content = curl_exec($ch);
+            curl_close($ch);
+            $data = json_decode($content);
+            /*  dd($data->data->attributes->cards); */
+            foreach ($data->data->attributes->cards as $key => $item) {
+
+                $urlItem = "https://society6.com" . $item->card->link->href;
+                $urlApi = "https://society6.com/gateway/v1" . str_replace('product', 'products', $item->card->link->href);
+                $productType = $item->product->product_type->display_name;
+
+                $ch = curl_init($urlApi);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                $content = curl_exec($ch);
+
+                curl_close($ch);
+                $data1 = json_decode($content);
+                /*  if ($key == 41) {
+                dd($data1);
+                } */
+                if (isset($data1->errors)) {
+                    continue;
+                }
+                if (!isset($data1->data)) {
+                    continue;
+                }
+                $object = [];
+                $attribute_items = $data1->data->attributes->attributes;
+                $image_map = $data1->data->attributes->media_map;
+                $description_map = $data1->data->attributes->description_map->a;
+                $description_map = explode("\n", $description_map);
+                $description_map = array_filter(array_map('trim', $description_map));
+                $name_item = $data1->data->attributes->creative->title . " Comforter";
+                foreach ($data1->data->attributes->skus as $keySku => $sku) {
+                    $idSize = $sku->attributes->a200;
+                    $object[] = [
+                        'sku' => $keySku,
+                        'name' => $name_item,
+                        'size' => $attribute_items->a200->values->$idSize->label,
+                        'price' => $sku->retail_price,
+                        'image_1' => $image_map->e->src->xxl,
+                        'image_2' => $image_map->d->src->xxl,
+                        'description' => $description_map[0],
+                        'bullet_point1' => $description_map[2],
+                        'bullet_point2' => $description_map[3],
+                        'bullet_point3' => $description_map[4],
+                        'bullet_point4' => $description_map[5],
+                    ];
+                }
+                array_push($products, $object);
+
+                /*  $description = $data1->data->attributes->description_map->a;
+            $title = $item->card->image->alt;
+            $sizes = $data1->data->attributes->attributes->a200->values;
+            $linkImage = $data1->data->attributes->media_map;
+            $arrSizePrice = [];
+            $arrLinkImage = [
+            'size_1' => $linkImage->e->src->xxl,
+            'size_2' => $linkImage->f->src->xxl,
+            ];
+            foreach ($sizes as $keySize => $valueSize) {
+            array_push($arrSizePrice, $valueSize->label . "|" . $valueSize->price);
+            }
+
+            $description = explode("\n", $description);
+            $products[] = [$item->id, $urlItem, $productType, $title, $description, $arrSizePrice, $arrLinkImage];*/
+            }
+
+        }
+
+        return Excel::download(new Society($products), "society_comforter_".$to.".xlsx");
     }
 
     /**
