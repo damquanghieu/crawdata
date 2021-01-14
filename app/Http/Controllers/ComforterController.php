@@ -17,8 +17,8 @@ class ComforterController extends Controller
     public function index()
     {
         $products = [];
-        for ($i = 1; $i <= 1; $i++) {
-            if ($i == 61) {
+        for ($i = 1; $i <= 2; $i++) {
+            if ($i == 61 || $i == 73) {
                 continue;
             }
             $ch = curl_init("https://society6.com/gateway/v1/search?alias=comforters&page=" . $i);
@@ -54,16 +54,19 @@ class ComforterController extends Controller
                 $description_map = $data1->data->attributes->description_map->a;
                 $description_map = explode("\n", $description_map);
                 $description_map = array_filter(array_map('trim', $description_map));
+
                 $name_item = $data1->data->attributes->creative->title . " Comforter";
                 foreach ($data1->data->attributes->skus as $keySku => $sku) {
                     $idSize = $sku->attributes->a200;
+                    $image2 = $image_map->d->src->xxl;
+                    $media = $sku->media[0];
                     $object[] = [
                         'sku' => $keySku,
                         'name' => $name_item,
                         'size' => $attribute_items->a200->values->$idSize->label,
                         'price' => $sku->retail_price,
-                        'image_1' => $image_map->e->src->xxl,
-                        'image_2' => $image_map->d->src->xxl,
+                        'image_1' => $image_map->$media->src->xxl,
+                        'image_2' => $image2,
                         'description' => $description_map[0],
                         'bullet_point1' => $description_map[2],
                         'bullet_point2' => $description_map[3],
@@ -72,22 +75,6 @@ class ComforterController extends Controller
                     ];
                 }
                 array_push($products, $object);
-
-                /*  $description = $data1->data->attributes->description_map->a;
-            $title = $item->card->image->alt;
-            $sizes = $data1->data->attributes->attributes->a200->values;
-            $linkImage = $data1->data->attributes->media_map;
-            $arrSizePrice = [];
-            $arrLinkImage = [
-            'size_1' => $linkImage->e->src->xxl,
-            'size_2' => $linkImage->f->src->xxl,
-            ];
-            foreach ($sizes as $keySize => $valueSize) {
-            array_push($arrSizePrice, $valueSize->label . "|" . $valueSize->price);
-            }
-
-            $description = explode("\n", $description);
-            $products[] = [$item->id, $urlItem, $productType, $title, $description, $arrSizePrice, $arrLinkImage];*/
             }
 
         }
@@ -173,27 +160,24 @@ class ComforterController extends Controller
     {
         switch ($id) {
             case 'case_1':
-                return $this->crawData(1,20);
+                return $this->crawData(1, 20);
                 break;
 
             case 'case_2':
-                return $this->crawData(21,40);
+                return $this->crawData(21, 40);
                 break;
             case 'case_3':
-                return $this->crawData(41,60);
+                return $this->crawData(41, 60);
                 break;
             case 'case_4':
-                return $this->crawData(61,80);
+                return $this->crawData(61, 70);
                 break;
             case 'case_5':
-                return $this->crawData(81,100);
+                return $this->crawData(77, 77);
                 break;
-                case 'case_6':
-                    return $this->crawData(73,73);
-                    break;
-                    case 'case_7':
-                        return $this->crawData(74,75);
-                        break;
+            case 'case_6':
+                return $this->crawData(61, 80);
+                break;
             default:
                 # code...
                 break;
@@ -203,8 +187,9 @@ class ComforterController extends Controller
     public function crawData($start, $to)
     {
         $products = [];
+
         for ($i = $start; $i <= $to; $i++) {
-            if ($i == 61 || $i == 73) {
+            if ($i == 76) {
                 continue;
             }
             $ch = curl_init("https://society6.com/gateway/v1/search?alias=comforters&page=" . $i);
@@ -240,16 +225,19 @@ class ComforterController extends Controller
                 $description_map = $data1->data->attributes->description_map->a;
                 $description_map = explode("\n", $description_map);
                 $description_map = array_filter(array_map('trim', $description_map));
+
                 $name_item = $data1->data->attributes->creative->title . " Comforter";
                 foreach ($data1->data->attributes->skus as $keySku => $sku) {
                     $idSize = $sku->attributes->a200;
+                    $image2 = $image_map->d->src->xxl;
+                    $media = $sku->media[0];
                     $object[] = [
                         'sku' => $keySku,
                         'name' => $name_item,
                         'size' => $attribute_items->a200->values->$idSize->label,
                         'price' => $sku->retail_price,
-                        'image_1' => $image_map->e->src->xxl,
-                        'image_2' => $image_map->d->src->xxl,
+                        'image_1' => $image_map->$media->src->xxl,
+                        'image_2' => $image2,
                         'description' => $description_map[0],
                         'bullet_point1' => $description_map[2],
                         'bullet_point2' => $description_map[3],
@@ -258,27 +246,11 @@ class ComforterController extends Controller
                     ];
                 }
                 array_push($products, $object);
-
-                /*  $description = $data1->data->attributes->description_map->a;
-            $title = $item->card->image->alt;
-            $sizes = $data1->data->attributes->attributes->a200->values;
-            $linkImage = $data1->data->attributes->media_map;
-            $arrSizePrice = [];
-            $arrLinkImage = [
-            'size_1' => $linkImage->e->src->xxl,
-            'size_2' => $linkImage->f->src->xxl,
-            ];
-            foreach ($sizes as $keySize => $valueSize) {
-            array_push($arrSizePrice, $valueSize->label . "|" . $valueSize->price);
-            }
-
-            $description = explode("\n", $description);
-            $products[] = [$item->id, $urlItem, $productType, $title, $description, $arrSizePrice, $arrLinkImage];*/
             }
 
         }
 
-        return Excel::download(new Society($products), "society_comforter_".$to.".xlsx");
+        return Excel::download(new Society($products), "society_comforter_page_" . $start . "-" . $to . ".xlsx");
     }
 
     /**

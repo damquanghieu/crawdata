@@ -23,7 +23,7 @@ Route::get('comforter/{id}', 'ComforterController@show');
 Route::get('comforter/{id}', 'ComforterController@show');
 Route::get('comforter/{id}', 'ComforterController@show');
 
-Route::get('home', 'CurlController@index');
+/* Route::get('home', 'CurlController@index');
 Route::get('home/{id}', 'CurlController@show');
 Route::get('home/{id}', 'CurlController@show');
 Route::get('home/{id}', 'CurlController@show');
@@ -33,6 +33,11 @@ Route::get('home/{id}', 'CurlController@show');
 Route::get('home/{id}', 'CurlController@show');
 Route::get('home/{id}', 'CurlController@show');
 Route::get('home/{id}', 'CurlController@show');
-Route::get('home/{id}', 'CurlController@show');
+Route::get('home/{id}', 'CurlController@show'); */
 
 Route::get('tshirt', 'TshirtController@index');
+Route::get('tshirt/{id}', 'TshirtController@show');
+Route::get('tshirt/{id}', 'TshirtController@show');
+Route::get('tshirt/{id}', 'TshirtController@show');
+Route::get('tshirt/{id}', 'TshirtController@show');
+Route::get('tshirt/{id}', 'TshirtController@show');
